@@ -12,7 +12,7 @@ class SignosVitalesModel extends Model
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
 
-    protected $allowedFields = ['idAnamnesis', 'presionArterialSignosVitales', 'frecuenciaCardiacaSignosVitales', 'frecuenciaRespiratoriaSignosVitales', 'temperaturaSignosVitales', 'pesoSignosVitales', 'tallaSignosVitales', 'activoSignosVitales'];
+    protected $allowedFields = ['idAnamnesis', 'presionArterialSistolicaSignosVitales', 'presionArterialDiastolicaSignosVitales', 'frecuenciaCardiacaSignosVitales', 'frecuenciaRespiratoriaSignosVitales', 'temperaturaSignosVitales', 'pesoSignosVitales', 'tallaSignosVitales', 'activoSignosVitales'];
 
     protected $useTimestamps = true;
     protected $createdField  = 'fechaAltaSignosVitales';

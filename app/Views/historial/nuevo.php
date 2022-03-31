@@ -1,4 +1,3 @@
-<div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4"><?php echo $titulo?></h1>
@@ -28,7 +27,8 @@
                                     <div class="row">
                                         <div class="col-12 col-sm-6">
                                             <label>Fecha de nacimiento:</label>
-                                            <input class="form-control" id="fechaNacimiento" name="fechaNacimiento" type="date" value="<?php echo set_value('fechaNacimiento')?>" autofocus required>
+                                            <?php $date = date('Y-m-d', time());?>
+                                            <input class="form-control" id="fechaNacimiento" name="fechaNacimiento" type="date" value="<?php echo set_value('fechaNacimiento')?>" min="1900-01-01" max="<?php echo $date;?>" autofocus required>
                                         </div>
                                         <div class="col-12 col-sm-6">
                                             <label>Teléfono:</label>
@@ -55,11 +55,12 @@
                                             <input class="form-control" id="direccion" name="direccion" type="text" value="<?php echo set_value('direccion')?>" autofocus required>
                                         </div>
                                         <div class="col-12 col-sm-6">
+                                            <?php $valorGenero=set_value('genero')?>
                                             <label>Género:</label>
                                             <select class="form-control" id="genero" name="genero" required>
-                                                <option value="">Seleccionar género</option>
-                                                <option value="M">Masculino</option>
-                                                <option value="F">Femenino</option>
+                                                <option value="" <?php if(""==$valorGenero){ echo 'selected';}?>>Seleccionar género</option>
+                                                <option value="M" <?php if("M"==$valorGenero){ echo 'selected';}?>>Masculino</option>
+                                                <option value="F" <?php if("F"==$valorGenero){ echo 'selected';}?>>Femenino</option>
                                             </select>
                                         </div>
                                     </div>

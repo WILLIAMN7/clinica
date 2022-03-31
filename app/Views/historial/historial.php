@@ -1,17 +1,6 @@
-<div id="layoutSidenav_content">
     <main>
         <div class="container-fluid px-4">
             <h1 class="mt-4"><?php echo $titulo ?></h1>
-            <?php if(session('mensaje')){ ?>
-        <div class="alert alert-success">
-          <?php echo session('mensaje');?>
-        </div>
-      <?php } ?>
-      <?php if(session('mensajeError')){ ?>
-        <div class="alert alert-danger">
-          <?php echo session('mensajeError');?>
-        </div>
-      <?php } ?>
             <div>
                 <?php if ($permisoInsertar == 1) { ?>
                     <a href="<?php echo base_url(); ?>/Historial/nuevo" class="btn btn-info">Agregar</a>
@@ -22,20 +11,22 @@
             </div>
             <br>
             <table id="datatablesSimple">
+            <caption>Listado de pacientes</caption>
                 <thead>
                     <tr>
-                        <th>Id</th>
-                        <th>Paciente</th>
+                        <th scope="col" style="display:none;">Id</th>
+                        <th scope="col">Identificación</th>
+                        <th scope="col">Paciente</th>
                         <?php if ($permisoEditar == 1) { ?>
-                            <th></th>
+                            <th scope="col"></th>
                         <?php } ?>
                         <?php if ($permisoEliminar == 1) { ?>
-                            <th></th>
+                            <th scope="col"></th>
                         <?php } ?>
                         <?php if ($permisoMostrar == 1) { ?>
-                            <th></th>
+                            <th scope="col"></th>
                         <?php } ?>
-                        <th></th>
+                        <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -43,18 +34,19 @@
                     foreach ($datos as $dato) {
                     ?>
                         <tr>
-                            <td><?php echo $dato['idPaciente'] ?></td>
+                            <td style="display:none;"><?php echo $dato['idPaciente'] ?></td>
+                            <td><?php echo $dato['identificacionPaciente'] ?></td>
                             <td><?php echo $dato['nombrePaciente'] ?> <?php echo $dato['apellidoPaciente'] ?></td>
                             <?php if ($permisoEditar == 1) { ?>
-                                <td><a href="<?php echo base_url() . '/Historial/editar/' . $dato['idPaciente'] ?>" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></a></td>
+                                <td><a href="<?php echo base_url() . '/Historial/editar/' . $dato['idPaciente'] ?>" class="btn btn-warning"><em class="fas fa-pencil-alt"></em></a></td>
                             <?php } ?>
                             <?php if ($permisoEliminar == 1) { ?>
-                                <td><a href="#" data-href="<?php echo base_url() . '/Historial/eliminar/' . $dato['idPaciente'] ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><i class="fas fa-trash"></i></a></td>
+                                <td><a href="#" data-href="<?php echo base_url() . '/Historial/eliminar/' . $dato['idPaciente'] ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><em class="fas fa-trash"></em></a></td>
                             <?php } ?>
                             <?php if ($permisoMostrar == 1) { ?>
-                                <td><a href="<?php echo base_url() . '/Anamnesis/index/' . $dato['idPaciente'] ?>" class="btn btn-warning"><i class="fas fa-notes-medical"></i></a></td>
+                                <td><a href="<?php echo base_url() . '/Anamnesis/index/' . $dato['idPaciente'] ?>" class="btn btn-info"><em class="fas fa-notes-medical"></em></a></td>
                             <?php } ?>
-                            <td><a href="<?php echo base_url() . '/Historial/muestraHistorialPDF/' . $dato['idPaciente'] ?>" class="btn btn-warning"><i class="fas fa-file-pdf"></i></a></td>
+                            <td><a href="<?php echo base_url() . '/Historial/muestraHistorialPDF/' . $dato['idPaciente'] ?>" class="btn btn-success"><em class="fas fa-file-pdf"></em></a></td>
                         </tr>
                     <?php
                     }

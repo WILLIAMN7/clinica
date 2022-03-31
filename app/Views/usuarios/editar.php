@@ -1,4 +1,4 @@
-<div id="layoutSidenav_content">
+
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4"><?php echo $titulo?></h1>
@@ -22,7 +22,7 @@
                                             <input class="form-control" id="usuario" name="usuario" type="text" value="<?php echo $datos['usuarioUsuario'];?>" autofocus required>
                                         </div>
                                         <div class="col-12 col-sm-6">
-                                            <label>Nombre</label>
+                                            <label>Alias</label>
                                             <input class="form-control" id="nombre" name="nombre" type="text" value="<?php echo $datos['nombreUsuario'];?>" autofocus required>
                                         </div>
                                     </div>
@@ -31,7 +31,7 @@
                                     <div class="row">                                    
                                         <div class="col-12 col-sm-6">
                                             <label>Roles</label>
-                                            <select class="form-control" id="id_rol" name="id_rol" required>
+                                            <select class="form-control" id="idRol" name="idRol" required>
                                                 <option value="">Seleccionar rol</option>
                                             <?php foreach($roles as $rol){ ?>                                                    
                                                 <option value="<?php echo $rol['idRoles']?>" <?php if($rol['idRoles']==$datos['idRolUsuario']){ echo 'selected';}?>><?php echo $rol['nombreRoles']?></option>

@@ -53,6 +53,7 @@ public function habilitarpermisos()
     </script>
     ';
     } else {
+        
     }
     if (!$permisoMenuReportes) {
         echo '

@@ -28,8 +28,7 @@ class OdontogramaActualModel extends Model
         $this->join('tbpiezadental as p', 'tbodontogramaactual.idPiezaDental = p.idPiezaDental');
         $this->where('p.idPiezaDental', $codigo);
         $this->where('tbodontogramaactual.idPaciente', $paciente);
-        $datos=$this->get()->getRow();
-        return $datos;
+        return $this->get()->getRow();
     }
     
     public function obtenerDentaduraActualMaxilarSuperiorDerecha($paciente){
@@ -38,9 +37,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('p.numeroPiezaDental<19');
         $this->orderBy('p.numeroPiezaDental', 'DESC');
-        $datos3=$this->findAll();
-        //print_r($this->getLastQuery());
-        return $datos3;
+        return $this->findAll();
     }
 
     public function obtenerDentaduraActualMaxilarSuperiorIzquierda($paciente){
@@ -49,8 +46,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('numeroPiezaDental>20 && numeroPiezaDental<29');
         $this->orderBy('numeroPiezaDental', 'ASC');
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
     public function obtenerDentaduraActualMaxilarInferiorIzquierda($paciente){
@@ -59,8 +55,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('numeroPiezaDental>30 && numeroPiezaDental<39');
         $this->orderBy('numeroPiezaDental', 'ASC');
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
     public function obtenerDentaduraActualMaxilarInferiorDerecho($paciente){
@@ -69,8 +64,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('numeroPiezaDental>40 && numeroPiezaDental<49');
         $this->orderBy('numeroPiezaDental', 'DESC');
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
     public function obtenerDentaduraActualMaxilarSuperiorDerechaTemporales($paciente){
@@ -79,8 +73,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('numeroPiezaDental>50 && numeroPiezaDental<56');
         $this->orderBy('numeroPiezaDental', 'DESC');
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
     public function obtenerDentaduraActualMaxilarSuperiorIzquierdaTemporales($paciente){
@@ -89,8 +82,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('numeroPiezaDental>60 && numeroPiezaDental<66');
         $this->orderBy('numeroPiezaDental', 'ASC');
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
     public function obtenerDentaduraActualMaxilarInferiorIzquierdaTemporales($paciente){
@@ -99,8 +91,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('numeroPiezaDental>70 && numeroPiezaDental<76');
         $this->orderBy('numeroPiezaDental', 'ASC');
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
     public function obtenerDentaduraActualMaxilarInferiorDerechoTemporales($paciente){
@@ -109,8 +100,7 @@ class OdontogramaActualModel extends Model
         $this->where('tbodontogramaactual.idPaciente', $paciente);
         $this->where('numeroPiezaDental>80 && numeroPiezaDental<86');
         $this->orderBy('numeroPiezaDental', 'DESC');
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
 }

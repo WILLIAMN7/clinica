@@ -28,9 +28,7 @@ class OdontogramasModel extends Model
         $this->join('tbpiezadental as p', 'tbodontograma.idPiezaDental = p.idPiezaDental');
         $this->where('p.idPiezaDental', $codigo);
         $this->orderBy('fechaAltaOdontograma', 'DESC');
-        $datos2=$this->get()->getRow();
-        
-        return $datos2;
+        return $this->get()->getRow();
     }
 
     public function obtenerpiezadental2($codigo, $paciente){
@@ -38,13 +36,11 @@ class OdontogramasModel extends Model
         $this->join('tbpiezadental as p', 'tbodontograma.idPiezaDental = p.idPiezaDental');
         $this->where('p.idPiezaDental', $codigo);
         $this->orderBy('fechaAltaOdontograma', 'DESC');
-        $datos=$this->get()->getRow();
-        return $datos;
+        return $this->get()->getRow();
     }
 
     public function obtenerDientesActuales($id){
-        $datos3=$this->findAll();
-        return $datos3;
+        return $this->findAll();
     }
 
 }

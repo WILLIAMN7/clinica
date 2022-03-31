@@ -1,7 +1,6 @@
 <?php
 $user_session = session();
 ?>
-<div id="layoutSidenav_content">
     <main>
         <div class="container-fluid px-4">
             <h1 class="mt-4"><?php echo $titulo ?></h1>
@@ -21,7 +20,7 @@ $user_session = session();
                             <div class="row">
                                 <div class="col-12 col-sm-6">
                                     <label>Tratamiento</label>
-                                    <select class="form-control" id="tratamiento" name="tratamiento" required>
+                                    <select class="mi-selector form-control" id="tratamiento" name="tratamiento" required>
                                         <option value="">Seleccionar codigo</option>
                                         <?php foreach ($codigos_cie as $codigo_cie) { ?>
                                             <option value="<?php echo $codigo_cie['idCodigosCie'] ?>"><?php echo $codigo_cie['descripcionCodigosCie'] ?></option>

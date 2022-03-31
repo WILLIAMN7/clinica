@@ -1,4 +1,4 @@
-<div id="layoutSidenav_content">
+
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4"><?php echo $titulo?></h1>
@@ -8,10 +8,11 @@
                                     <a href="<?php echo base_url();?>/Historial" class="btn btn-warning">Pacientes</a>
                                 </div>
                                 <table id="datatablesSimple">
+                                    <caption>Listado de pacientes eliminados</caption>
                                     <thead>
-                                            <th>Id</th>
-                                            <th>Paciente</th>
-                                            <th></th>
+                                            <th scope="col">Id</th>
+                                            <th scope="col">Paciente</th>
+                                            <th scope="col"></th>
                                     </thead>
                                     <tbody>
                                         <?php
@@ -20,7 +21,7 @@
                                         <tr>
                                             <td><?php echo $dato['idPaciente']?></td>
                                             <td><?php echo $dato['nombrePaciente']?> <?php echo $dato['apellidoPaciente']?></td>
-                                            <td><a href="#" data-href="<?php echo base_url().'/Historial/reingresar/'. $dato['idPaciente']?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Reingresar registro" class="btn btn-success"><i class="fas fa-arrow-alt-circle-up"></i></a></td>
+                                            <td><a href="#" data-href="<?php echo base_url().'/Historial/reingresar/'. $dato['idPaciente']?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Reingresar registro" class="btn btn-success"><em class="fas fa-arrow-alt-circle-up"></em></a></td>
                                         </tr>
                                         <?php
                                         }

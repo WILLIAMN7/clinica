@@ -17,7 +17,7 @@ class RolesModel extends Model
     protected $useTimestamps = true;
     protected $createdField  = 'fechaAltaRoles';
     protected $updatedField  = 'fechaEditRoles';
-    //protected $deletedField  = 'deleted_at';
+    protected $deletedField  = '';
 
     protected $validationRules    = [];
     protected $validationMessages = [];

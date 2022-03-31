@@ -30,8 +30,7 @@ class TratamientosModel extends Model
         $this->where('tbtratamiento.activoTratamiento', 1);
         $this->where('c.tipoCodigosCie', 'TRA');
         $this->where('tbtratamiento.idPaciente', $id);
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 
     public function listarTratamiento($idTratamiento){
@@ -40,13 +39,11 @@ class TratamientosModel extends Model
         $this->join('tbmedico AS m', 'tbtratamiento.idMedico = m.idMedico');
         $this->where('tbtratamiento.activoTratamiento', 1);
         $this->where('c.tipoCodigosCie', 'TRA');
-        //$this->where('tbtratamiento.idpaciente', $id);
         $this->where('tbtratamiento.idTratamiento', $idTratamiento);
-        $datos=$this->first();
-        return $datos;
+        return $this->first();
     }
 
-    public function listarFiltrosTratamiento($idTratamiento, $fechaInicio, $fechaFin){
+    public function listarFiltrosTratamiento($estado, $fechaInicio, $fechaFin){
         $this->select('*');
         $this->join('tbcodigoscie AS c', 'tbtratamiento.idCodigoCie = c.idCodigosCie');
         $this->join('tbmedico AS m', 'tbtratamiento.idMedico = m.idMedico');
@@ -55,9 +52,11 @@ class TratamientosModel extends Model
         $this->where('c.tipoCodigosCie', 'TRA');
         $this->where('tbtratamiento.fechaAltaTratamiento>"'.$fechaInicio.'"');
         $this->where('tbtratamiento.fechaAltaTratamiento<"'.$fechaFin.'"');
+        if($estado!="TODOS"){
+        $this->where('tbtratamiento.procedimientoTratamiento', $estado);        
+        }
         $this->orderBy('tbtratamiento.fechaAltaTratamiento', 'DESC');
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 
 

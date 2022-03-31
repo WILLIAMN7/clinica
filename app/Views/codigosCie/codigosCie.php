@@ -1,33 +1,29 @@
-<div id="layoutSidenav_content">
   <main>
     <div class="container-fluid px-4">
       <h1 class="mt-4"><?php echo $titulo ?></h1>
 
-      <?php if(session('mensaje')){ ?>
-        <div class="alert alert-success">
-          <?php echo session('mensaje');?>
-        </div>
-      <?php } ?>
-      <?php if(session('mensajeError')){ ?>
-        <div class="alert alert-danger">
-          <?php echo session('mensajeError');?>
-        </div>
-      <?php } ?>
-
-
       <div>
-        <a href="<?php echo base_url(); ?>/CodigosCie/nuevo" class="btn btn-info">Agregar</a>
+        <?php if ($permisoInsertar == 1) { ?>
+          <a href="<?php echo base_url(); ?>/CodigosCie/nuevo" class="btn btn-info">Agregar</a>
+        <?php } ?>
+        <?php if ($permisoEliminar == 1) { ?>
         <a href="<?php echo base_url(); ?>/CodigosCie/eliminados" class="btn btn-warning">Eliminados</a>
+        <?php } ?>
       </div>
       <br>
       <table id="datatablesSimple">
+       <caption>Listado de codigos Cie</caption>
         <thead>
           <tr>
-            <th>Id</th>
-            <th>Descripción</th>
-            <th>Código</th>
-            <th></th>
-            <th></th>
+            <th scope="col">Id</th>
+            <th scope="col">Descripción</th>
+            <th scope="col">Código</th>
+            <?php if ($permisoEditar == 1) { ?>
+            <th scope="col"></th>
+            <?php } ?>
+            <?php if ($permisoEliminar == 1) { ?>
+            <th scope="col"></th>
+            <?php } ?>
           </tr>
         </thead>
         <tbody>
@@ -38,8 +34,12 @@
               <td><?php echo $dato['idCodigosCie'] ?></td>
               <td><?php echo $dato['descripcionCodigosCie'] ?></td>
               <td><?php echo $dato['codigoCodigosCie'] ?></td>
-              <td><a href="<?php echo base_url() . '/CodigosCie/editar/' . $dato['idCodigosCie'] ?>" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></a></td>
-              <td><a href="#" data-href="<?php echo base_url() . '/CodigosCie/eliminar/' . $dato['idCodigosCie'] ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><i class="fas fa-trash"></i></a></td>
+              <?php if ($permisoEditar == 1) { ?>
+                <td><a href="<?php echo base_url() . '/CodigosCie/editar/' . $dato['idCodigosCie'] ?>" class="btn btn-warning"><em class="fas fa-pencil-alt"></em></a></td>
+              <?php } ?>
+              <?php if ($permisoEliminar == 1) { ?>
+                <td><a href="#" data-href="<?php echo base_url() . '/CodigosCie/eliminar/' . $dato['idCodigosCie'] ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><em class="fas fa-trash"></em></a></td>
+              <?php } ?>
             </tr>
           <?php
           }

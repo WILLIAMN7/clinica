@@ -23,7 +23,7 @@ use App\Models\TratamientosModel;
 
 class Historial extends BaseController
 {
-    protected $pacientes, $detalleRoles, $configuracion, $procedimientosRealizados;
+    protected $pacientes, $detalleRoles, $configuracion, $procedimientosRealizados, $redireccionIndexHistorial, $direccionImagenOdontograma, $direccionImagenBlanco;
     protected $reglas, $session;
 
     public function __construct()
@@ -40,17 +40,38 @@ class Historial extends BaseController
         $this->examenes = new PlanDiagnosticosModel();
         $this->diagnosticos = new DiagnosticosModel();
         $this->tratamientos = new TratamientosModel();
-        $this->codigos_cie = new CodigosCieModel();
         $this->procedimientosRealizados = new ProcedimientosRealizadosModel();
         $this->configuracion = new ConfiguracionModel();
+        $this->direccionImagenBlanco ='/images/odontograma/blanco.png';
+        $this->direccionImagenOdontograma ='/images/odontograma/';
+        $this->redireccionIndexHistorial = '/historial';
         $this->session = session();
         helper(['form']);
         $this->reglas = [
             'nombre' => [
-                'rules' => 'required',
-                'errors' => [
-                    'required' => 'El campo {field} es obligatorio.'
-                ]
+                'rules' => 'required|min_length[2]|max_length[50]'
+            ], 'apellido' => [
+                'rules' => 'required|min_length[2]|max_length[50]'
+            ], 'fechaNacimiento' => [
+                'rules' => 'required'
+            ], 'telefono' => [
+                'rules' => 'required|min_length[7]|max_length[10]|numeric'
+            ], 'correo' => [
+                'rules' => 'required|min_length[10]|max_length[80]|valid_email'
+            ], 'direccion' => [
+                'rules' => 'required|min_length[5]|max_length[50]'
+            ], 'genero' => [
+                'rules' => 'required'
+            ]
+        ];
+        $this->reglasInsertarIdentificacion = [
+            'identificacion' => [
+                'rules' => 'required|min_length[10]|max_length[13]|numeric|is_unique[tbpaciente.identificacionPaciente]'
+            ]
+        ];
+        $this->reglasModificarIdentificacion = [
+            'identificacion' => [
+                'rules' => 'required|min_length[10]|max_length[13]|numeric|is_unique[tbpaciente.identificacionPaciente,tbpaciente.idPaciente,{id}]'
             ]
         ];
     }
@@ -105,7 +126,7 @@ class Historial extends BaseController
     }
     public function insertar()
     {
-        if ($this->request->getMethod() == "post" && $this->validate($this->reglas)) {
+        if ($this->request->getMethod() == "post" && $this->validate($this->reglas) && $this->validate($this->reglasInsertarIdentificacion)) {
             if ($this->pacientes->save([
                 'nombrePaciente' => $this->request->getPost('nombre'),
                 'apellidoPaciente' => $this->request->getPost('apellido'),
@@ -116,9 +137,9 @@ class Historial extends BaseController
                 'direccionPaciente' => $this->request->getPost('direccion'),
                 'generoPaciente' => $this->request->getPost('genero')
             ])) {
-                return redirect()->to(base_url() . '/historial')->with('mensaje', 'Se ha ingresado correctamente.');
+                return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensaje', 'Se ha ingresado correctamente.');
             } else {
-                return redirect()->to(base_url() . '/historial')->with('mensajeError', 'No se ha ingresado correctamente.');
+                return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensajeError', 'No se ha ingresado correctamente.');
             }
         } else {
             $data = ['titulo' => 'Agregar pacientes', 'validation' => $this->validator];
@@ -147,7 +168,7 @@ class Historial extends BaseController
     }
     public function actualizar()
     {
-        if ($this->request->getMethod() == "post" && $this->validate($this->reglas)) {
+        if ($this->request->getMethod() == "post" && $this->validate($this->reglas) && $this->validate($this->reglasModificarIdentificacion)) {
             if ($this->pacientes->update(
                 $this->request->getPost('id'),
                 [
@@ -161,9 +182,9 @@ class Historial extends BaseController
                     'generoPaciente' => $this->request->getPost('genero')
                 ]
             )) {
-                return redirect()->to(base_url() . '/historial')->with('mensaje', 'Se ha modificado correctamente.');
+                return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensaje', 'Se ha modificado correctamente.');
             } else {
-                return redirect()->to(base_url() . '/historial')->with('mensajeError', 'No se ha modificado correctamente.');
+                return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensajeError', 'No se ha modificado correctamente.');
             }
         } else {
             return $this->editar($this->request->getPost('id'), $this->validator);
@@ -173,17 +194,17 @@ class Historial extends BaseController
     public function eliminar($id)
     {
         if ($this->pacientes->update($id, ['activoPaciente' => 0])) {
-            return redirect()->to(base_url() . '/historial')->with('mensaje', 'Se ha eliminado correctamente.');
+            return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensaje', 'Se ha eliminado correctamente.');
         } else {
-            return redirect()->to(base_url() . '/historial')->with('mensajeError', 'No se ha eliminado correctamente.');
+            return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensajeError', 'No se ha eliminado correctamente.');
         }
     }
     public function reingresar($id)
     {
         if ($this->pacientes->update($id, ['activoPaciente' => 1])) {
-            return redirect()->to(base_url() . '/historial')->with('mensaje', 'Se ha reingresado correctamente.');
+            return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensaje', 'Se ha reingresado correctamente.');
         } else {
-            return redirect()->to(base_url() . '/historial')->with('mensajeError', 'No se ha reingresado correctamente.');
+            return redirect()->to(base_url() . $this->redireccionIndexHistorial)->with('mensajeError', 'No se ha reingresado correctamente.');
         }
     }
 
@@ -336,11 +357,110 @@ class Historial extends BaseController
     public function generaHistorialPDF($idPaciente)
     {
         $antecedentesPacientes = $this->antecedentesPacientes->where('activoAntecedentePaciente', 1)->where('idPaciente', $idPaciente)->orderBy('idAntecedentePaciente', 'DESC')->first();
+        if(isset($antecedentesPacientes)){
+            $alergiaAntibioticoAntecedentePaciente=$antecedentesPacientes['alergiaAntibioticoAntecedentePaciente'];
+            $alergiaAnestesiaAntecedentePaciente=$antecedentesPacientes['alergiaAnestesiaAntecedentePaciente'];
+            $hemorragiasAntecedentePaciente=$antecedentesPacientes['hemorragiasAntecedentePaciente'];
+            $sidaAntecedentePaciente=$antecedentesPacientes['sidaAntecedentePaciente'];
+            $tuberculosisAntecedentePaciente=$antecedentesPacientes['tuberculosisAntecedentePaciente'];
+            $asmaAntecedentePaciente=$antecedentesPacientes['asmaAntecedentePaciente'];
+            $diabetesAntecedentePaciente=$antecedentesPacientes['diabetesAntecedentePaciente'];
+            $hipertensionAntecedentePaciente=$antecedentesPacientes['hipertensionAntecedentePaciente'];
+            $enfermedadCardiacaAntecedentePaciente=$antecedentesPacientes['enfermedadCardiacaAntecedentePaciente'];
+            $otroAntecedentePaciente=$antecedentesPacientes['otroAntecedentePaciente'];
+            $comentarioAntecedentePaciente=$antecedentesPacientes['comentarioAntecedentePaciente'];
+        }else{
+            $alergiaAntibioticoAntecedentePaciente="";
+            $alergiaAnestesiaAntecedentePaciente="";
+            $hemorragiasAntecedentePaciente="";
+            $sidaAntecedentePaciente="";
+            $tuberculosisAntecedentePaciente="";
+            $asmaAntecedentePaciente="";
+            $diabetesAntecedentePaciente="";
+            $hipertensionAntecedentePaciente="";
+            $enfermedadCardiacaAntecedentePaciente="";
+            $otroAntecedentePaciente="";
+            $comentarioAntecedentePaciente="";
+        }
         $anamnesis = $this->anamnesis->select('*')->where('idPaciente', $idPaciente)->orderBy('idAnamnesis', 'DESC')->first();
+        if(isset($anamnesis)){
+            $idAnamnesis=$anamnesis['idAnamnesis'];
+            $motivoConsultaAnamnesis=$anamnesis['motivoConsultaAnamnesis'];
+            $descripcionProblemaAnamnesis=$anamnesis['descripcionProblemaAnamnesis'];
+        }else{
+            $idAnamnesis="";
+            $motivoConsultaAnamnesis="";
+            $descripcionProblemaAnamnesis="";
+        }
         $pacientes = $this->pacientes->select('*')->where('idPaciente', $idPaciente)->findAll();
-        $signosVitales = $this->signosVitales->where('activoSignosVitales', 1)->where('idAnamnesis', $anamnesis['idAnamnesis'])->orderBy('idSignosVitales', 'DESC')->first();
-        $examenSistemaEstomatognatico = $this->examenSistemaEstomatognatico->where('activoExamenSistemaEstomatognatico', 1)->where('idAnamnesis', $anamnesis['idAnamnesis'])->orderBy('idExamenSistemaEstomatognatico', 'DESC')->first();
-        $saludBucal = $this->saludBucal->where('activoSaludBucal', 1)->where('idAnamnesis', $anamnesis['idAnamnesis'])->orderBy('idSaludBucal', 'DESC')->first();
+        $signosVitales = $this->signosVitales->where('activoSignosVitales', 1)->where('idAnamnesis', $idAnamnesis)->orderBy('idSignosVitales', 'DESC')->first();
+        if(isset($signosVitales)){
+            $presionArterial=$signosVitales['presionArterialSistolicaSignosVitales'].'/'.$signosVitales['presionArterialDiastolicaSignosVitales'];
+            $frecuenciaCardiacaSignosVitales=$signosVitales['frecuenciaCardiacaSignosVitales'];
+            $frecuenciaRespiratoriaSignosVitales=$signosVitales['frecuenciaRespiratoriaSignosVitales'];
+            $temperaturaSignosVitales=$signosVitales['temperaturaSignosVitales'];
+            $pesoSignosVitales=$signosVitales['pesoSignosVitales'];
+            $tallaSignosVitales=$signosVitales['tallaSignosVitales'];
+        }else{
+            $presionArterial="";
+            $frecuenciaCardiacaSignosVitales="";
+            $frecuenciaRespiratoriaSignosVitales="";
+            $temperaturaSignosVitales="";
+            $pesoSignosVitales="";
+            $tallaSignosVitales="";
+        }
+        $examenSistemaEstomatognatico = $this->examenSistemaEstomatognatico->where('activoExamenSistemaEstomatognatico', 1)->where('idAnamnesis', $idAnamnesis)->orderBy('idExamenSistemaEstomatognatico', 'DESC')->first();
+        if(isset($examenSistemaEstomatognatico)){
+            $labiosExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['labiosExamenSistemaEstomatognatico'];
+            $mejillasExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['mejillasExamenSistemaEstomatognatico'];
+            $maxilarSuperiorExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['maxilarSuperiorExamenSistemaEstomatognatico'];
+            $maxilarInferiorExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['maxilarInferiorExamenSistemaEstomatognatico'];
+            $lenguaExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['lenguaExamenSistemaEstomatognatico'];
+            $paladarExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['paladarExamenSistemaEstomatognatico'];
+            $pisoDeBocaExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['pisoDeBocaExamenSistemaEstomatognatico'];
+            $carrillosExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['carrillosExamenSistemaEstomatognatico'];
+            $glandulasSalivalesExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['glandulasSalivalesExamenSistemaEstomatognatico'];
+            $faringeExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['faringeExamenSistemaEstomatognatico'];
+            $atmExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['atmExamenSistemaEstomatognatico'];
+            $gangliosExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['gangliosExamenSistemaEstomatognatico'];
+            $comentarioExamenSistemaEstomatognatico=$examenSistemaEstomatognatico['comentarioExamenSistemaEstomatognatico'];
+        }else{
+            $labiosExamenSistemaEstomatognatico="";
+            $mejillasExamenSistemaEstomatognatico="";
+            $maxilarSuperiorExamenSistemaEstomatognatico="";
+            $maxilarInferiorExamenSistemaEstomatognatico="";
+            $lenguaExamenSistemaEstomatognatico="";
+            $paladarExamenSistemaEstomatognatico="";
+            $pisoDeBocaExamenSistemaEstomatognatico="";
+            $carrillosExamenSistemaEstomatognatico="";
+            $glandulasSalivalesExamenSistemaEstomatognatico="";
+            $faringeExamenSistemaEstomatognatico="";
+            $atmExamenSistemaEstomatognatico="";
+            $gangliosExamenSistemaEstomatognatico="";
+            $comentarioExamenSistemaEstomatognatico="";
+        }
+        $saludBucal = $this->saludBucal->where('activoSaludBucal', 1)->where('idAnamnesis', $idAnamnesis)->orderBy('idSaludBucal', 'DESC')->first();
+        if(isset($saludBucal)){
+            $higieneOral161755SaludBucal=$saludBucal['higieneOral161755SaludBucal'];
+            $higieneOral112151SaludBucal=$saludBucal['higieneOral112151SaludBucal'];
+            $higieneOral262765SaludBucal=$saludBucal['higieneOral262765SaludBucal'];
+            $higieneOral363775SaludBucal=$saludBucal['higieneOral363775SaludBucal'];
+            $higieneOral314171SaludBucal=$saludBucal['higieneOral314171SaludBucal'];
+            $higieneOral464785SaludBucal=$saludBucal['higieneOral464785SaludBucal'];
+            $enfermedadPeriodontalSaludBucal=$saludBucal['enfermedadPeriodontalSaludBucal'];
+            $maloclusionSaludBucal=$saludBucal['maloclusionSaludBucal'];
+            $fluorosisSaludBucal=$saludBucal['fluorosisSaludBucal'];
+        }else{
+            $higieneOral161755SaludBucal="";
+            $higieneOral112151SaludBucal="";
+            $higieneOral262765SaludBucal="";
+            $higieneOral363775SaludBucal="";
+            $higieneOral314171SaludBucal="";
+            $higieneOral464785SaludBucal="";
+            $enfermedadPeriodontalSaludBucal="";
+            $maloclusionSaludBucal="";
+            $fluorosisSaludBucal="";
+        }
         $examenes = $this->examenes->where('activoPlanDiagnostico', 1)->where('idPaciente', $idPaciente)->orderBy('fechaEditPlanDiagnostico', 'DESC')->findAll();
         $diagnosticos = $this->diagnosticos->select('*')->join('tbcodigoscie AS c', 'tbdiagnostico.idCodigosCie = c.idCodigosCie')->where('tbdiagnostico.activoDiagnostico', 1)->where('tbdiagnostico.idPaciente', $idPaciente)->findAll();
         $tratamientos = $this->tratamientos->listarTratamientos($idPaciente);
@@ -363,12 +483,11 @@ class Historial extends BaseController
         $dentaduraActualMaxilarInferiorDerechoTemporales = $this->odontogramaActual->obtenerDentaduraActualMaxilarInferiorDerechoTemporales($idPaciente);
 
         $nombreTienda = $this->configuracion->select('valorConfiguracion')->where('nombreConfiguracion', "tienda_nombre")->get()->getRow()->valorConfiguracion;
-        $direccionTienda = $this->configuracion->select('valorConfiguracion')->where('nombreConfiguracion', "tienda_direccion")->get()->getRow()->valorConfiguracion;
 
         $pdf = new \FPDF('p', 'mm', 'letter');
         $pdf->AddPage();
         $pdf->SetMargins(10, 10, 10);
-        $pdf->setTitle('Compra');
+        $pdf->setTitle(utf8_decode('Historia clínica odontológica'));
         $pdf->SetFont('Arial', 'B', 16);
         //ancho, alto, titulo, 0 sin bordes, 1 salto de linea, C centrado
         $pdf->SetFont('Arial', 'B', 9);
@@ -378,7 +497,6 @@ class Historial extends BaseController
         $pdf->Cell(40, 5, utf8_decode('SEXO'), 1, 0, 'L');
         $pdf->Cell(40, 5, utf8_decode('HISTORIA CLINICA'), 1, 1, 'L');
         //X, Y, ANCHO, ALTO, FORMATO
-        //$pdf->image(base_url().'/images/logotipo.png', 185, 10, 20, 20, 'PNG');
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(40, 5, utf8_decode($nombreTienda), 1, 0, 'L');
         foreach ($pacientes as $paciente) {
@@ -399,14 +517,14 @@ class Historial extends BaseController
 
         $pdf->Cell(200, 5, utf8_decode('1. MOTIVO DE CONSULTA'), 1, 1, 'L');
         $pdf->SetFont('Arial', '', 8);
-        $pdf->MultiCell(200, 5, utf8_decode($anamnesis['motivoConsultaAnamnesis']), 1, 'J');
+        $pdf->MultiCell(200, 5, utf8_decode($motivoConsultaAnamnesis), 1, 'J');
 
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Ln();
 
         $pdf->Cell(200, 5, utf8_decode('2. ENFERMEDAD O PROBLEMA ACTUAL'), 1, 1, 'L');
         $pdf->SetFont('Arial', '', 8);
-        $pdf->MultiCell(200, 5, utf8_decode($anamnesis['descripcionProblemaAnamnesis']), 1, 'J');
+        $pdf->MultiCell(200, 5, utf8_decode($descripcionProblemaAnamnesis), 1, 'J');
 
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Ln();
@@ -414,81 +532,80 @@ class Historial extends BaseController
         $pdf->Cell(200, 5, utf8_decode('3. ANTECEDENTES PERSONALES Y FAMILIARES'), 1, 1, 'L');
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(35, 5, utf8_decode('ALERGIA ANTIBIÓTICO'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['alergiaAntibioticoAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($alergiaAntibioticoAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, utf8_decode('ALERGIA ANESTESIA'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['alergiaAnestesiaAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($alergiaAnestesiaAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, utf8_decode('HEMORRAGIAS'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['hemorragiasAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($hemorragiasAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, utf8_decode('SIDA'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['sidaAntecedentePaciente']), 1, 1, 'L');
+        $pdf->Cell(15, 5, utf8_decode($sidaAntecedentePaciente), 1, 1, 'L');
         $pdf->Cell(35, 5, utf8_decode('TUBERCULOSIS'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['tuberculosisAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($tuberculosisAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, utf8_decode('ASMA'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['asmaAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($asmaAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, utf8_decode('DIABETES'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['diabetesAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($diabetesAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, utf8_decode('HIPERTENSIÓN'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['hipertensionAntecedentePaciente']), 1, 1, 'L');
+        $pdf->Cell(15, 5, utf8_decode($hipertensionAntecedentePaciente), 1, 1, 'L');
         $pdf->Cell(35, 5, utf8_decode('ENF. CARDÍACA'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['enfermedadCardiacaAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($enfermedadCardiacaAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, utf8_decode('OTRO'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($antecedentesPacientes['otroAntecedentePaciente']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($otroAntecedentePaciente), 1, 0, 'L');
         $pdf->Cell(35, 5, '', 1, 0, 'L');
         $pdf->Cell(15, 5, '', 1, 0, 'L');
         $pdf->Cell(35, 5, '', 1, 0, 'L');
         $pdf->Cell(15, 5, '', 1, 1, 'L');
         $pdf->Cell(200, 5, utf8_decode('COMENTARIO'), 1, 1, 'L');
-        $pdf->MultiCell(200, 5, utf8_decode($antecedentesPacientes['comentarioAntecedentePaciente']), 1, 'J');
+        $pdf->MultiCell(200, 5, utf8_decode($comentarioAntecedentePaciente), 1, 'J');
 
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Ln();
-        //$pdf->Cell(200, 5, '', 0, 1, 'L');
         $pdf->Cell(200, 5, utf8_decode('4. SIGNOS VITALES'), 1, 1, 'L');
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(50, 5, utf8_decode('PRESIÓN ARTERIAL'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($signosVitales['presionArterialSignosVitales']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($presionArterial), 1, 0, 'L');
         $pdf->Cell(50, 5, utf8_decode('FRECUENCIA CARDIACA'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($signosVitales['frecuenciaCardiacaSignosVitales']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($frecuenciaCardiacaSignosVitales), 1, 0, 'L');
         $pdf->Cell(50, 5, utf8_decode('FRECUENCIA RESPIRATORIA'), 1, 0, 'L');
-        $pdf->Cell(20, 5, utf8_decode($signosVitales['frecuenciaRespiratoriaSignosVitales']), 1, 1, 'L');
+        $pdf->Cell(20, 5, utf8_decode($frecuenciaRespiratoriaSignosVitales), 1, 1, 'L');
         $pdf->Cell(50, 5, utf8_decode('TEMPERATURA'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($signosVitales['temperaturaSignosVitales']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($temperaturaSignosVitales), 1, 0, 'L');
         $pdf->Cell(50, 5, utf8_decode('PESO'), 1, 0, 'L');
-        $pdf->Cell(15, 5, utf8_decode($signosVitales['pesoSignosVitales']), 1, 0, 'L');
+        $pdf->Cell(15, 5, utf8_decode($pesoSignosVitales), 1, 0, 'L');
         $pdf->Cell(50, 5, utf8_decode('TALLA'), 1, 0, 'L');
-        $pdf->Cell(20, 5, utf8_decode($signosVitales['tallaSignosVitales']), 1, 1, 'L');
+        $pdf->Cell(20, 5, utf8_decode($tallaSignosVitales), 1, 1, 'L');
 
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Ln();
         $pdf->Cell(200, 5, utf8_decode('5. EXAMEN DEL SISTEMA ESTOMATOGNÁTICO'), 1, 1, 'L');
         $pdf->SetFont('Arial', '', 8);
         $pdf->Cell(28, 5, utf8_decode('LABIOS'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['labiosExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($labiosExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('MEJILLAS'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['mejillasExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($mejillasExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('MAX. SUPERIOR'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['maxilarSuperiorExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($maxilarSuperiorExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('MAX. INFERIOR'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['maxilarInferiorExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($maxilarInferiorExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('LENGUA'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['lenguaExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($lenguaExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(30, 5, utf8_decode('PALADAR'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['paladarExamenSistemaEstomatognatico']), 1, 1, 'L');
+        $pdf->Cell(5, 5, utf8_decode($paladarExamenSistemaEstomatognatico), 1, 1, 'L');
         $pdf->Cell(28, 5, utf8_decode('PISO'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['pisoDeBocaExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($pisoDeBocaExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('CARRILLOS'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['carrillosExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($carrillosExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('GLÁN. SALIVALES'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['glandulasSalivalesExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($glandulasSalivalesExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('FARINGE'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['faringeExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($faringeExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(28, 5, utf8_decode('ATM'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['atmExamenSistemaEstomatognatico']), 1, 0, 'L');
+        $pdf->Cell(5, 5, utf8_decode($atmExamenSistemaEstomatognatico), 1, 0, 'L');
         $pdf->Cell(30, 5, utf8_decode('GANGLIOS'), 1, 0, 'L');
-        $pdf->Cell(5, 5, utf8_decode($examenSistemaEstomatognatico['gangliosExamenSistemaEstomatognatico']), 1, 1, 'L');
+        $pdf->Cell(5, 5, utf8_decode($gangliosExamenSistemaEstomatognatico), 1, 1, 'L');
 
         $pdf->Cell(200, 5, utf8_decode('COMENTARIO'), 1, 1, 'L');
-        $pdf->MultiCell(200, 5, utf8_decode($examenSistemaEstomatognatico['comentarioExamenSistemaEstomatognatico']), 1, 'J');
+        $pdf->MultiCell(200, 5, utf8_decode($comentarioExamenSistemaEstomatognatico), 1, 'J');
 
         $pdf->SetFont('Arial', 'B', 9);
         $pdf->Ln();
@@ -569,9 +686,9 @@ class Historial extends BaseController
         foreach ($dentaduraActualMaxilarSuperiorDerecha  as $dienteActualMaxilarSuperiorDerecha) {
             $diente = $dienteActualMaxilarSuperiorDerecha['tratamientoOdontogramaActual'];
             if ($diente == "") {
-                $pdf->image(base_url() . '/images/odontograma/blanco.png', $x3 + ($aumento3 * $i3), 183, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenBlanco, $x3 + ($aumento3 * $i3), 183, 5, 5, 'PNG');
             } elseif ($diente != "") {
-                $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarSuperiorDerecha['tratamientoOdontogramaActual'] . '.png', $x3 + ($aumento3 * $i3), 183, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarSuperiorDerecha['tratamientoOdontogramaActual'] . '.png', $x3 + ($aumento3 * $i3), 183, 5, 5, 'PNG');
             }
             $i3++;
         }
@@ -583,16 +700,16 @@ class Historial extends BaseController
             if ($dienteActualMaxilarSuperiorIzquierda['numeroPiezaDental'] != 28) {
                 $diente = $dienteActualMaxilarSuperiorIzquierda['tratamientoOdontogramaActual'];
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', $x4 + ($aumento4 * $i4), 183, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, $x4 + ($aumento4 * $i4), 183, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarSuperiorIzquierda['tratamientoOdontogramaActual'] . '.png', $x4 + ($aumento4 * $i4), 183, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarSuperiorIzquierda['tratamientoOdontogramaActual'] . '.png', $x4 + ($aumento4 * $i4), 183, 5, 5, 'PNG');
                 }
                 $i4++;
             } elseif ($dienteActualMaxilarSuperiorIzquierda['numeroPiezaDental'] == 28) {
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', 202, 183, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, 202, 183, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarSuperiorIzquierda['tratamientoOdontogramaActual'] . '.png', 202, 183, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarSuperiorIzquierda['tratamientoOdontogramaActual'] . '.png', 202, 183, 5, 5, 'PNG');
                 }
             }
         }
@@ -646,9 +763,9 @@ class Historial extends BaseController
         foreach ($dentaduraActualMaxilarSuperiorDerechaTemporales  as $dienteActualMaxilarSuperiorDerechaTemporales) {
             $diente = $dienteActualMaxilarSuperiorDerechaTemporales['tratamientoOdontogramaActual'];
             if ($diente == "") {
-                $pdf->image(base_url() . '/images/odontograma/blanco.png', $x7 + ($aumento7 * $i7), 206, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenBlanco, $x7 + ($aumento7 * $i7), 206, 5, 5, 'PNG');
             } elseif ($diente != "") {
-                $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarSuperiorDerechaTemporales['tratamientoOdontogramaActual'] . '.png', $x7 + ($aumento7 * $i7), 206, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarSuperiorDerechaTemporales['tratamientoOdontogramaActual'] . '.png', $x7 + ($aumento7 * $i7), 206, 5, 5, 'PNG');
             }
             $i7++;
         }
@@ -660,17 +777,17 @@ class Historial extends BaseController
             if ($dienteActualMaxilarSuperiorIzquierdaTemporales['numeroPiezaDental'] != 65) {
                 $diente = $dienteActualMaxilarSuperiorIzquierdaTemporales['tratamientoOdontogramaActual'];
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', $x8 + ($aumento8 * $i8), 206, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, $x8 + ($aumento8 * $i8), 206, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarSuperiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', $x8 + ($aumento8 * $i8), 206, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarSuperiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', $x8 + ($aumento8 * $i8), 206, 5, 5, 'PNG');
                 }
                 $i8++;
             } else if ($dienteActualMaxilarSuperiorIzquierdaTemporales['numeroPiezaDental'] == 65) {
                 $diente = $dienteActualMaxilarSuperiorIzquierdaTemporales['tratamientoOdontogramaActual'];
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', 169, 206, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, 169, 206, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarSuperiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', 169, 206, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarSuperiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', 169, 206, 5, 5, 'PNG');
                 }
             }
         }
@@ -722,9 +839,9 @@ class Historial extends BaseController
         foreach ($dentaduraActualMaxilarInferiorDerechoTemporales  as $dienteActualMaxilarInferiorDerechoTemporales) {
             $diente = $dienteActualMaxilarInferiorDerechoTemporales['tratamientoOdontogramaActual'];
             if ($diente == "") {
-                $pdf->image(base_url() . '/images/odontograma/blanco.png', $x11 + ($aumento11 * $i11), 226, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenBlanco, $x11 + ($aumento11 * $i11), 226, 5, 5, 'PNG');
             } elseif ($diente != "") {
-                $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarInferiorDerechoTemporales['tratamientoOdontogramaActual'] . '.png', $x11 + ($aumento11 * $i11), 226, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarInferiorDerechoTemporales['tratamientoOdontogramaActual'] . '.png', $x11 + ($aumento11 * $i11), 226, 5, 5, 'PNG');
             }
             $i11++;
         }
@@ -736,17 +853,17 @@ class Historial extends BaseController
             if ($dienteActualMaxilarInferiorIzquierdaTemporales['numeroPiezaDental'] != 75) {
                 $diente = $dienteActualMaxilarInferiorIzquierdaTemporales['tratamientoOdontogramaActual'];
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', $x12 + ($aumento12 * $i12), 226, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, $x12 + ($aumento12 * $i12), 226, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarInferiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', $x12 + ($aumento12 * $i12), 226, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarInferiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', $x12 + ($aumento12 * $i12), 226, 5, 5, 'PNG');
                 }
                 $i12++;
             } else if ($dienteActualMaxilarInferiorIzquierdaTemporales['numeroPiezaDental'] == 75) {
                 $diente = $dienteActualMaxilarInferiorIzquierdaTemporales['tratamientoOdontogramaActual'];
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', 169, 226, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, 169, 226, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarInferiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', 169, 226, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarInferiorIzquierdaTemporales['tratamientoOdontogramaActual'] . '.png', 169, 226, 5, 5, 'PNG');
                 }
             }
         }
@@ -830,9 +947,9 @@ class Historial extends BaseController
         foreach ($dentaduraActualMaxilarInferiorDerecho  as $dienteActualMaxilarInferiorDerecho) {
             $diente = $dienteActualMaxilarInferiorDerecho['tratamientoOdontogramaActual'];
             if ($diente == "") {
-                $pdf->image(base_url() . '/images/odontograma/blanco.png', $x15 + ($aumento15 * $i15), 261, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenBlanco, $x15 + ($aumento15 * $i15), 261, 5, 5, 'PNG');
             } elseif ($diente != "") {
-                $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarInferiorDerecho['tratamientoOdontogramaActual'] . '.png', $x11 + ($aumento11 * $i11), 261, 5, 5, 'PNG');
+                $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarInferiorDerecho['tratamientoOdontogramaActual'] . '.png', $x15 + ($aumento15 * $i15), 261, 5, 5, 'PNG');
             }
             $i15++;
         }
@@ -844,22 +961,24 @@ class Historial extends BaseController
             if ($dienteActualMaxilarInferiorIzquierda['numeroPiezaDental'] != 38) {
                 $diente = $dienteActualMaxilarInferiorIzquierda['tratamientoOdontogramaActual'];
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', $x16 + ($aumento16 * $i16), 261, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, $x16 + ($aumento16 * $i16), 261, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarInferiorIzquierda['tratamientoOdontogramaActual'] . '.png', $x16 + ($aumento16 * $i16), 261, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarInferiorIzquierda['tratamientoOdontogramaActual'] . '.png', $x16 + ($aumento16 * $i16), 261, 5, 5, 'PNG');
                 }
                 $i16++;
             } else if ($dienteActualMaxilarInferiorIzquierda['numeroPiezaDental'] == 38) {
                 $diente = $dienteActualMaxilarInferiorIzquierda['tratamientoOdontogramaActual'];
                 if ($diente == "") {
-                    $pdf->image(base_url() . '/images/odontograma/blanco.png', 169, 270, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenBlanco, 169, 270, 5, 5, 'PNG');
                 } elseif ($diente != "") {
-                    $pdf->image(base_url() . '/images/odontograma/' . $dienteActualMaxilarInferiorIzquierda['tratamientoOdontogramaActual'] . '.png', 169, 270, 5, 5, 'PNG');
+                    $pdf->image(base_url() . $this->direccionImagenOdontograma . $dienteActualMaxilarInferiorIzquierda['tratamientoOdontogramaActual'] . '.png', 169, 270, 5, 5, 'PNG');
                 }
             }
         }
 
 
+
+        
 
 
         $pdf->SetFont('Arial', 'B', 9);
@@ -870,6 +989,7 @@ class Historial extends BaseController
         $pdf->Ln();
         $pdf->Ln();
         $pdf->Cell(200, 5, '', 0, 1, 'L');
+        $pdf->image(base_url().$this->direccionImagenOdontograma.'Simbologia.png', 10, 15, 200, 30, 'PNG');
         $pdf->Ln();
         $pdf->Ln();
         $pdf->Ln();
@@ -882,12 +1002,12 @@ class Historial extends BaseController
         $pdf->Cell(172, 5, utf8_decode('HIGIENE ORAL SIMPLIFICADA'), 1, 0, 'C');
         $pdf->Cell(28, 5, utf8_decode('CARIES'), 1, 1, 'C');
         $pdf->Cell(20, 5, utf8_decode('PIEZA'), 1, 0, 'C');
-        $datospieza161755 = explode(",", $saludBucal['higieneOral161755SaludBucal']);
-        $datospieza112151 = explode(",", $saludBucal['higieneOral112151SaludBucal']);
-        $datospieza262765 = explode(",", $saludBucal['higieneOral262765SaludBucal']);
-        $datospieza363775 = explode(",", $saludBucal['higieneOral363775SaludBucal']);
-        $datospieza314171 = explode(",", $saludBucal['higieneOral314171SaludBucal']);
-        $datospieza464785 = explode(",", $saludBucal['higieneOral464785SaludBucal']);
+        $datospieza161755 = explode(",", $higieneOral161755SaludBucal);
+        $datospieza112151 = explode(",", $higieneOral112151SaludBucal);
+        $datospieza262765 = explode(",", $higieneOral262765SaludBucal);
+        $datospieza363775 = explode(",", $higieneOral363775SaludBucal);
+        $datospieza314171 = explode(",", $higieneOral314171SaludBucal);
+        $datospieza464785 = explode(",", $higieneOral464785SaludBucal);
 
         if (count($datospieza161755) == 1 && count($datospieza112151) == 1 && count($datospieza262765) == 1 && count($datospieza363775) == 1 && count($datospieza314171) == 1 && count($datospieza464785) == 1) {
             $datospieza161755 = "    ";
@@ -926,19 +1046,19 @@ class Historial extends BaseController
         $pdf->Cell(10, 5, utf8_decode($datospieza464785[1]), 1, 0, 'C');
         $pdf->Cell(15, 5, utf8_decode(round((($sumaPlaca) / 6), 2)), 1, 0, 'C');
         $pdf->Cell(22, 5, utf8_decode('LEVE'), 1, 0, 'C');
-        if ($saludBucal['enfermedadPeriodontalSaludBucal'] == "Leve") {
+        if ($enfermedadPeriodontalSaludBucal == "Leve") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
         }
         $pdf->Cell(20, 5, utf8_decode('ANGLE I'), 1, 0, 'C');
-        if ($saludBucal['maloclusionSaludBucal'] == "Angle I") {
+        if ($maloclusionSaludBucal == "Angle I") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
         }
         $pdf->Cell(20, 5, utf8_decode('LEVE'), 1, 0, 'C');
-        if ($saludBucal['fluorosisSaludBucal'] == "Leve") {
+        if ($fluorosisSaludBucal == "Leve") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
@@ -957,19 +1077,19 @@ class Historial extends BaseController
         $pdf->Cell(10, 5, utf8_decode($datospieza464785[2]), 1, 0, 'C');
         $pdf->Cell(15, 5, utf8_decode(round((($sumaCalculo) / 6), 2)), 1, 0, 'C');
         $pdf->Cell(22, 5, utf8_decode('MODERADA'), 1, 0, 'C');
-        if ($saludBucal['enfermedadPeriodontalSaludBucal'] == "Moderado") {
+        if ($enfermedadPeriodontalSaludBucal == "Moderado") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
         }
         $pdf->Cell(20, 5, utf8_decode('ANGLE II'), 1, 0, 'C');
-        if ($saludBucal['maloclusionSaludBucal'] == "Angle II") {
+        if ($maloclusionSaludBucal == "Angle II") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
         }
         $pdf->Cell(20, 5, utf8_decode('MODERADA'), 1, 0, 'C');
-        if ($saludBucal['fluorosisSaludBucal'] == "Moderado") {
+        if ($fluorosisSaludBucal == "Moderado") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
@@ -988,19 +1108,19 @@ class Historial extends BaseController
         $pdf->Cell(10, 5, utf8_decode($datospieza464785[3]), 1, 0, 'C');
         $pdf->Cell(15, 5, utf8_decode(round((($sumaGingivitis) / 6), 2)), 1, 0, 'C');
         $pdf->Cell(22, 5, utf8_decode('SEVERA'), 1, 0, 'C');
-        if ($saludBucal['enfermedadPeriodontalSaludBucal'] == "Severa") {
+        if ($enfermedadPeriodontalSaludBucal == "Severa") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
         }
         $pdf->Cell(20, 5, utf8_decode('ANGLE III'), 1, 0, 'C');
-        if ($saludBucal['maloclusionSaludBucal'] == "Angle III") {
+        if ($maloclusionSaludBucal == "Angle III") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
         }
         $pdf->Cell(20, 5, utf8_decode('SEVERA'), 1, 0, 'C');
-        if ($saludBucal['fluorosisSaludBucal'] == "Severa") {
+        if ($fluorosisSaludBucal == "Severa") {
             $pdf->Cell(5, 5, utf8_decode('X'), 1, 0, 'C');
         } else {
             $pdf->Cell(5, 5, utf8_decode(''), 1, 0, 'C');
@@ -1049,7 +1169,6 @@ class Historial extends BaseController
                         }
                     } else if ($num_files >= 4) {
                         for ($i = 1; $i < 4 + 1; $i++) {
-                            //$pdf->Cell(35, 5, utf8_decode($examen['fechaEditPlanDiagnostico']), 1, 1, 'C');
                             if ($i < 4) {
                                 $pdf->Cell(30, 5, 'Ver archivo_' . $i, 1, 0, 'C', false, base_url() . '/images/examenes/' . $examen['idPaciente'] . '/archivo_' . $i . '.pdf');
                             } else {

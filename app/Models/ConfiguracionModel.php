@@ -11,8 +11,6 @@ class ConfiguracionModel extends Model
 
     protected $returnType     = 'array';
     protected $useSoftDeletes = false;
-    //protected $useSoftUpdates = false;
-    //protected $useSoftCreates = false;
 
     protected $allowedFields = ['nombreConfiguracion', 'valorConfiguracion'];
 

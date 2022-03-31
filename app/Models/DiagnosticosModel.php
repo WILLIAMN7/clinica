@@ -29,8 +29,7 @@ class DiagnosticosModel extends Model
         $this->where('tbdiagnostico.activoDiagnostico', 1);
         $this->where('c.tipoCodigosCie', 'DIA');
         $this->where('tbdiagnostico.idPaciente', $id);
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 }
 

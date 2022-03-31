@@ -30,8 +30,7 @@ class ProcedimientosRealizadosModel extends Model
         $this->join('tbcodigoscie AS c', 't.idCodigoCie = c.idCodigosCie');
         $this->where('tbprocedimientosrealizados.activoProcedimientosRealizados', 1);
         $this->where('tbprocedimientosrealizados.idTratamiento', $idTratamiento);
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 
     public function listarTodosLosProcedimientosRealizados($idPaciente){
@@ -41,8 +40,7 @@ class ProcedimientosRealizadosModel extends Model
         $this->join('tbcodigoscie AS c', 't.idCodigoCie = c.idCodigosCie');
         $this->where('tbprocedimientosrealizados.activoProcedimientosRealizados', 1);
         $this->where('t.idpaciente', $idPaciente);
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 }
 

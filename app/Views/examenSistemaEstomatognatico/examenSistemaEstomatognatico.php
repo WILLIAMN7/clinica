@@ -1,31 +1,36 @@
-<div id="layoutSidenav_content">
   <main>
     <div class="container-fluid px-4">
       <h1 class="mt-4"><?php echo $titulo ?></h1>
       <div>
-        <a href="<?php echo base_url(); ?>/ExamenSistemaEstomatognatico/nuevo/<?php echo $idanamnesis; ?>/<?php echo $idpaciente; ?>" class="btn btn-info">Agregar</a>
-        <!--<a href="<?php echo base_url(); ?>/SignosVitales/eliminados" class="btn btn-warning">Eliminados</a>-->
-        <a href="<?php echo base_url(); ?>/Anamnesis/index/<?php echo $idpaciente; ?>" class="btn btn-primary">Regresar</a>
+        <?php if ($permisoInsertar == 1) { ?>
+          <a href="<?php echo base_url(); ?>/ExamenSistemaEstomatognatico/nuevo/<?php echo $idanamnesis; ?>/<?php echo $idpaciente; ?>" class="btn btn-info">Agregar</a>
+        <?php } ?>
+        <a href="<?php echo base_url(); ?>/Anamnesis/mostrarAnamnesis/<?php echo $idpaciente; ?>" class="btn btn-primary">Regresar</a>
       </div>
       <br>
       <table id="datatablesSimple">
+      <caption>Listado de examen del sistema estomatognático</caption>
         <thead>
           <tr style="font-size: 12px;">
-            <th style="display:none;">Id</th>
-            <th>Labios</th>
-            <th>Mejillas</th>
-            <th>Maxilar Superior</th>
-            <th>Maxilar Inferior</th>
-            <th>Lengua</th>
-            <th>Paladar</th>
-            <th>Piso de boca</th>
-            <th>Carrillos</th>
-            <th>Glándulas Salivales</th>
-            <th>Faringe</th>
-            <th>ATM</th>
-            <th>Ganglios</th>
-            <th></th>
-            <th></th>
+            <th scope="col" style="display:none;">Id</th>
+            <th scope="col">Labios</th>
+            <th scope="col">Mejillas</th>
+            <th scope="col">Maxilar Superior</th>
+            <th scope="col">Maxilar Inferior</th>
+            <th scope="col">Lengua</th>
+            <th scope="col">Paladar</th>
+            <th scope="col">Piso de boca</th>
+            <th scope="col">Carrillos</th>
+            <th scope="col">Glándulas Salivales</th>
+            <th scope="col">Faringe</th>
+            <th scope="col">ATM</th>
+            <th scope="col">Ganglios</th>
+            <?php if ($permisoEditar == 1) { ?>
+              <th scope="col"></th>
+            <?php } ?>
+            <?php if ($permisoEliminar == 1) { ?>
+              <th scope="col"></th>
+            <?php } ?>
           </tr>
         </thead>
         <tbody>
@@ -33,7 +38,8 @@
           foreach ($datos as $dato) {
           ?>
             <tr>
-              <td style="display:none;"><?php echo $dato['idExamenSistemaEstomatognatico'] ?></td>
+              <?php $idExamen=$dato['idExamenSistemaEstomatognatico']?>
+              <td style="display:none;"><?php echo $idExamen ?></td>
               <td><?php echo $dato['labiosExamenSistemaEstomatognatico'] ?></td>
               <td><?php echo $dato['mejillasExamenSistemaEstomatognatico'] ?></td>
               <td><?php echo $dato['maxilarSuperiorExamenSistemaEstomatognatico'] ?></td>
@@ -46,8 +52,13 @@
               <td><?php echo $dato['faringeExamenSistemaEstomatognatico'] ?></td>
               <td><?php echo $dato['atmExamenSistemaEstomatognatico'] ?></td>
               <td><?php echo $dato['gangliosExamenSistemaEstomatognatico'] ?></td>
-              <td><a href="<?php echo base_url() . '/ExamenSistemaEstomatognatico/editar/' . $dato['idExamenSistemaEstomatognatico'] . '/' . $dato['idAnamnesis'] . '/' . $idpaciente; ?>" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></a></td>
-              <td><a href="#" data-href="<?php echo base_url() . '/ExamenSistemaEstomatognatico/eliminar/' . $dato['idExamenSistemaEstomatognatico'] . '/' . $dato['idAnamnesis'] . '/' . $idpaciente; ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><i class="fas fa-trash"></i></a></td>
+
+              <?php if ($permisoEditar == 1) { ?>
+                <td><a href="<?php echo base_url() . '/ExamenSistemaEstomatognatico/editar/' . $idExamen . '/' . $dato['idAnamnesis'] . '/' . $idpaciente; ?>" class="btn btn-warning"><em class="fas fa-pencil-alt"></em></a></td>
+              <?php } ?>
+              <?php if ($permisoEliminar == 1) { ?>
+                <td><a href="#" data-href="<?php echo base_url() . '/ExamenSistemaEstomatognatico/eliminar/' . $idExamen . '/' . $dato['idAnamnesis'] . '/' . $idpaciente; ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><em class="fas fa-trash"></em></a></td>
+              <?php } ?>
             </tr>
           <?php
           }

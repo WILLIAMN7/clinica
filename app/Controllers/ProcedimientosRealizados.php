@@ -7,12 +7,12 @@ use App\Models\TratamientosModel;
 use App\Models\CodigosCieModel;
 use App\Models\ProcedimientosRealizadosModel;
 use App\Libraries\permisosMenu;
-//use App\Models\MedicosModel;
+use App\Models\DetalleRolesPermisosModel;
 use App\Models\PacientesModel;
 
 class ProcedimientosRealizados extends BaseController
 {
-    protected $tratamientos, $procedimientosRealizados, $medicos, $pacientes;
+    protected $tratamientos, $procedimientosRealizados, $medicos, $pacientes, $redireccionIndexProcedimientos;
     protected $reglas, $session;
 
     public function __construct()
@@ -22,15 +22,14 @@ class ProcedimientosRealizados extends BaseController
         $this->procedimientosRealizados = new ProcedimientosRealizadosModel();
         $this->codigosCie = new CodigosCieModel();
         $this->pacientes = new PacientesModel();
+        $this->detalleRoles = new DetalleRolesPermisosModel();
+        $this->redireccionIndexProcedimientos = '/procedimientosRealizados/index/';
         $this->session = session();
 
         helper(['form']);
         $this->reglas = [
             'procedimiento' => [
-                'rules' => 'required|min_length[2]',
-                'errors' => [
-                    'required' => 'El campo {field} es obligatorio.'
-                ]
+                'rules' => 'required|min_length[2]'
             ]
         ];
     }
@@ -40,13 +39,24 @@ class ProcedimientosRealizados extends BaseController
         if (!isset($this->session->idUsuario)) {
             return redirect()->to(base_url());
         } else {
-            $procedimientosRealizados = $this->procedimientosRealizados->listarProcedimientosRealizados($idTratamiento);
-            $data = ['titulo' => 'Procedimientos realizados', 'idPaciente' => $id, 'idTratamiento' => $idTratamiento,  'datos' => $procedimientosRealizados];
+            $permiso = $this->detalleRoles->verificaPermisos($this->session->idRol, 'TratamientosMostrar');
+            if (!$permiso) {
+                echo view('header');
+                $this->permisosMenu->habilitarpermisos();
+                $this->permisosMenu->mensajeNoPermisos();
+                echo view('footer');
+            } else {
+                $procedimientosRealizados = $this->procedimientosRealizados->listarProcedimientosRealizados($idTratamiento);
+                $permisoInsertar = $this->detalleRoles->verificaPermisos($this->session->idRol, 'TratamientosInsertar');
+                $permisoEditar = $this->detalleRoles->verificaPermisos($this->session->idRol, 'TratamientosEditar');
+                $permisoEliminar = $this->detalleRoles->verificaPermisos($this->session->idRol, 'TratamientosEliminar');
+                $data = ['titulo' => 'Procedimientos realizados', 'idPaciente' => $id, 'idTratamiento' => $idTratamiento,  'datos' => $procedimientosRealizados, 'permisoInsertar' => $permisoInsertar, 'permisoEditar' => $permisoEditar, 'permisoEliminar' => $permisoEliminar];
 
-            echo view('header');
-            $this->permisosMenu->habilitarpermisos();
-            echo view('procedimientosRealizados/procedimientosRealizados', $data);
-            echo view('footer');
+                echo view('header');
+                $this->permisosMenu->habilitarpermisos();
+                echo view('procedimientosRealizados/procedimientosRealizados', $data);
+                echo view('footer');
+            }
         }
     }
 
@@ -76,13 +86,16 @@ class ProcedimientosRealizados extends BaseController
     public function insertar()
     {
         if ($this->request->getMethod() == "post" && $this->validate($this->reglas)) {
-            $this->procedimientosRealizados->save([
+            if ($this->procedimientosRealizados->save([
                 'idMedico' => $this->request->getPost('idMedicos'),
                 'idTratamiento' => $this->request->getPost('idTratamientos'),
                 'procedimientoProcedimientosRealizados' => $this->request->getPost('procedimiento'),
                 'prescripcionProcedimientosRealizados' => $this->request->getPost('prescripcion')
-            ]);
-            return redirect()->to(base_url() . '/procedimientosRealizados/index/' . $this->request->getPost('idPaciente') . '/' . $this->request->getPost('idTratamientos'));
+            ])) {
+                return redirect()->to(base_url() . $this->redireccionIndexProcedimientos . $this->request->getPost('idPaciente') . '/' . $this->request->getPost('idTratamientos'))->with('mensaje', 'Se ha ingresado correctamente.');
+            } else {
+                return redirect()->to(base_url() . $this->redireccionIndexProcedimientos . $this->request->getPost('idPaciente') . '/' . $this->request->getPost('idTratamientos'))->with('mensajeError', 'No se ha ingresado correctamente.');
+            }
         } else {
             $tratamientos = $this->tratamientos->listarTratamiento($this->request->getPost('idTratamientos'));
             $pacientes = $this->pacientes->where('idPaciente', $this->request->getPost('idPaciente'))->first();
@@ -115,14 +128,17 @@ class ProcedimientosRealizados extends BaseController
     public function actualizar()
     {
         if ($this->request->getMethod() == "post" && $this->validate($this->reglas)) {
-            $this->procedimientosRealizados->update(
+            if ($this->procedimientosRealizados->update(
                 $this->request->getPost('id'),
                 [
                     'procedimientoProcedimientosRealizados' => $this->request->getPost('procedimiento'),
                     'prescripcionProcedimientosRealizados' => $this->request->getPost('prescripcion')
                 ]
-            );
-           return redirect()->to(base_url() . '/procedimientosRealizados/index/' . $this->request->getPost('idPaciente').'/'.$this->request->getPost('idTratamientos'));
+            )) {
+                return redirect()->to(base_url() . $this->redireccionIndexProcedimientos . $this->request->getPost('idPaciente') . '/' . $this->request->getPost('idTratamientos'))->with('mensaje', 'Se ha modificado correctamente.');
+            } else {
+                return redirect()->to(base_url() . $this->redireccionIndexProcedimientos . $this->request->getPost('idPaciente') . '/' . $this->request->getPost('idTratamientos'))->with('mensajeError', 'No se ha modificado correctamente.');
+            }
         } else {
             return $this->editar($this->request->getPost('id'), $this->request->getPost('idPaciente'), $this->request->getPost('idTratamientos'), $this->validator);
         }
@@ -130,11 +146,21 @@ class ProcedimientosRealizados extends BaseController
 
     public function eliminar($id, $idPaciente, $idTratamiento)
     {
-        $this->procedimientosRealizados->update($id, ['activoProcedimientosRealizados' => 0]);
-        return redirect()->to(base_url() . '/procedimientosRealizados/index/' . $idPaciente.'/'.$idTratamiento);
+        if ($this->procedimientosRealizados->update($id, ['activoProcedimientosRealizados' => 0])) {
+            return redirect()->to(base_url() . $this->redireccionIndexProcedimientos . $idPaciente . '/' . $idTratamiento)->with('mensaje', 'Se ha eliminado correctamente.');
+        } else {
+            return redirect()->to(base_url() . $this->redireccionIndexProcedimientos . $idPaciente . '/' . $idTratamiento)->with('mensajeError', 'No se ha eliminado correctamente.');
+        }
     }
-    /*public function reingresar($id){
-        $this->tratamientos->update($id, ['activoTratamiento'=>1]);
-        return redirect()->to(base_url().'/tratamientos');
-    }*/
+
+    public function finalizado($idPaciente, $idTratamiento)
+    {
+        $this->tratamientos->update(
+            $idTratamiento,
+            [
+                'procedimientoTratamiento' => "FINALIZADO",
+            ]
+        );
+        return redirect()->to(base_url() . '/Tratamientos/index/' . $idPaciente)->with('mensaje', 'Se ha finalizado el tratamiento correctamente. Revisar y actualizar el odontograma de ser necesario.');
+    }
 }

@@ -1,4 +1,3 @@
-<div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4"><?php echo $titulo?></h1>
@@ -8,11 +7,12 @@
                                     <a href="<?php echo base_url();?>/roles" class="btn btn-warning">Roles</a>
                                 </div>
                                 <table id="datatablesSimple">
+                                <caption>Listado de roles eliminados</caption>
                                     <thead>
                                         <tr>
-                                            <th>Id</th>
-                                            <th>Nombre</th>                                            
-                                            <th></th>                                          
+                                            <th scope="col">Id</th>
+                                            <th scope="col">Nombre</th>                                            
+                                            <th scope="col"></th>                                          
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -20,9 +20,9 @@
                                         foreach($datos as $dato){
                                         ?>
                                         <tr>
-                                            <td><?php echo $dato['wn7_rol_id']?></td>
-                                            <td><?php echo $dato['wn7_rol_nombre']?></td>                                            
-                                            <td><a href="#" data-href="<?php echo base_url().'/roles/reingresar/'. $dato['wn7_rol_id']?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Reingresar registro" class="btn btn-success"><i class="fas fa-arrow-alt-circle-up"></i></a></td>
+                                        <td><?php echo $dato['idRoles'] ?></td>
+                                        <td><?php echo $dato['nombreRoles'] ?></td>
+                                        <td><a href="#" data-href="<?php echo base_url().'/roles/reingresar/'. $dato['idRoles']?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Reingresar registro" class="btn btn-success"><em class="fas fa-arrow-alt-circle-up"></em></a></td>
                                         </tr>
                                         <?php
                                         }

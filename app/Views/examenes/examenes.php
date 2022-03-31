@@ -1,23 +1,28 @@
-<div id="layoutSidenav_content">
   <main>
     <div class="container-fluid px-4">
-      <h1 class="mt-4"><?php echo $titulo ?></h1>
+      <h2 class="mt-4"><?php echo $titulo ?> a <?php echo $pacientes['apellidoPaciente']; ?> <?php echo $pacientes['nombrePaciente']; ?></h2>
       <div>
+      <?php if ($permisoInsertar == 1) { ?>
         <a href="<?php echo base_url(); ?>/Examenes/nuevo/<?php echo $idPaciente; ?>" class="btn btn-info">Agregar</a>
-        <!--<a href="<?php echo base_url(); ?>/Examenes/eliminados" class="btn btn-warning">Eliminados</a>-->
+        <?php } ?>
         <a href="<?php echo base_url(); ?>/Anamnesis/index/<?php echo $idPaciente; ?>" class="btn btn-primary">Regresar</a>
         <input type="hidden" id="idPaciente" name="idPaciente" value="<?php echo $idPaciente; ?>">
       </div>
       <br>
       <table id="datatablesSimple">
+      <caption>Listado de examenes realizados</caption>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Examen enviado</th>
-            <th>Comentario</th>
-            <th></th>
-            <th></th>
-            <th></th>
+            <th scope="col">ID</th>
+            <th scope="col">Examen enviado</th>
+            <th scope="col">Comentario</th>
+            <th scope="col"></th>
+            <?php if ($permisoEditar == 1) { ?>
+            <th scope="col"></th>
+            <?php } ?>
+              <?php if ($permisoEliminar == 1) { ?>
+            <th scope="col"></th>
+            <?php } ?>
           </tr>
         </thead>
         <tbody>
@@ -39,7 +44,7 @@
                   //echo $num_files . " files";
                   for ($i = 1; $i < $num_files + 1; $i++) {
                 ?>
-                    <a href="<?php echo base_url() . '/images/examenes/' . $idPaciente . '/archivo_' . $i . '.pdf' ?>" target=_blank>Ver archivo_<?php echo $i ?>.pdf</a>
+                    <a href="<?php echo base_url() . '/images/examenes/' . $dato['idPlanDiagnostico'] . '/archivo_' . $i . '.pdf' ?>" target=_blank>Ver archivo_<?php echo $i ?>.pdf</a>
                 <?php
                   }
                 } else {
@@ -47,8 +52,12 @@
                 }
                 ?>
               </td>
-              <td><a href="<?php echo base_url() . '/Examenes/editar/' . $dato['idPlanDiagnostico'] . '/' . $idPaciente ?>" class="btn btn-warning"><i class="fas fa-pencil-alt"></i></a></td>
-              <td><a href="#" data-href="<?php echo base_url() . '/Examenes/eliminar/' . $dato['idPlanDiagnostico'] . '/' . $idPaciente ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><i class="fas fa-trash"></i></a></td>
+              <?php if ($permisoEditar == 1) { ?>
+              <td><a href="<?php echo base_url() . '/Examenes/editar/' . $dato['idPlanDiagnostico'] . '/' . $idPaciente ?>" class="btn btn-warning"><em class="fas fa-pencil-alt"></em></a></td>
+              <?php } ?>
+              <?php if ($permisoEliminar == 1) { ?>
+              <td><a href="#" data-href="<?php echo base_url() . '/Examenes/eliminar/' . $dato['idPlanDiagnostico'] . '/' . $idPaciente ?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Eliminar registro" class="btn btn-danger"><em class="fas fa-trash"></em></a></td>
+              <?php } ?>
             </tr>
           <?php
           }

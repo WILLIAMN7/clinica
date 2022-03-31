@@ -17,11 +17,18 @@ class UsuariosModel extends Model
     protected $useTimestamps = true;
     protected $createdField  = 'fechaAltaUsuario';
     protected $updatedField  = 'fechaEditUsuario';
-    //protected $deletedField  = 'deleted_at';
+    protected $deletedField  = '';
 
     protected $validationRules    = [];
     protected $validationMessages = [];
     protected $skipValidation     = false;
+
+    public function listarUsuarios(){
+        $this->select('*');
+        $this->join('tbroles AS r', 'tbusuario.idRolUsuario = r.idRoles');
+        $this->where('tbusuario.activoUsuario', 1);
+        return $this->findAll();
+    }
 }
 
 ?>

@@ -23,16 +23,13 @@ class AnamnesisModel extends Model
     protected $validationMessages = [];
     protected $skipValidation     = false;
 
-    public function obtener($activo=1, $id){
+    public function obtener($activo=1, $idPaciente){
         $this->select('*');
         $this->join('tbpaciente AS p', 'tbanamnesis.idPaciente = p.idPaciente');
         $this->join('tbmedico AS m', 'tbanamnesis.idMedico = m.idMedico');
         $this->where('tbanamnesis.activoAnamnesis', $activo);
-        $this->where('tbanamnesis.idPaciente', $id);        
-        $datos=$this->findAll();
-        //sirve para ver si la sentencia sql esta bien
-        //print_r($this->getLastQuery());
-        return $datos;
+        $this->where('tbanamnesis.idPaciente', $idPaciente);
+        return $this->findAll();
     }
 
     

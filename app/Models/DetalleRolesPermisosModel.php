@@ -28,7 +28,6 @@ class DetalleRolesPermisosModel extends Model
         $this->select('*');
         $this->join('tbpermisos', 'tbdetallerolespermisos.idPermisoDetalleRolesPermisos = tbpermisos.idPermisos');
         $existe=$this->where(['idRolDetalleRolesPermisos'=>$idRol, 'tbpermisos.nombrePermisos'=>$permiso])->first();
-        //echo $this->getLastQuery();
         if($existe!=null){
             $tieneAcceso=true;
         }
@@ -36,15 +35,9 @@ class DetalleRolesPermisosModel extends Model
     }
 
     public function verificaMenuPrincipal($idRol){
-        //$tieneAcceso = false;
         $this->select('*');
         $this->join('tbpermisos', 'tbdetallerolespermisos.idPermisoDetalleRolesPermisos = tbpermisos.idPermisos');
-        $existe=$this->where(['idRolDetalleRolesPermisos'=>$idRol])->findAll();
-        //echo $this->getLastQuery();
-        /*if($existe!=null){
-            $tieneAcceso=true;
-        }*/
-        return $existe;
+        return $this->where(['idRolDetalleRolesPermisos'=>$idRol])->findAll();
     }
 }
 

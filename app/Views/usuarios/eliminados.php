@@ -1,4 +1,4 @@
-<div id="layoutSidenav_content">
+
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4"><?php echo $titulo?></h1>
@@ -8,12 +8,13 @@
                                     <a href="<?php echo base_url();?>/usuarios" class="btn btn-warning">Usuarios</a>
                                 </div>
                                 <table id="datatablesSimple">
+                                <caption>Listado de usuarios</caption>
                                     <thead>
                                         <tr>
-                                            <th>Id</th>
-                                            <th>Usuario</th>
-                                            <th>Nombre</th>
-                                            <th></th>                                                                                      
+                                            <th scope="col">Id</th>
+                                            <th scope="col">Usuario</th>
+                                            <th scope="col">Nombre</th>
+                                            <th scope="col"></th>                                                                                      
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -24,7 +25,7 @@
                                             <td><?php echo $dato['idUsuario']?></td>
                                             <td><?php echo $dato['usuarioUsuario']?></td>
                                             <td><?php echo $dato['nombreUsuario']?></td>
-                                            <td><a href="#" data-href="<?php echo base_url().'/usuarios/reingresar/'. $dato['idUsuario']?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Reingresar registro" class="btn btn-success"><i class="fas fa-arrow-alt-circle-up"></i></a></td>
+                                            <td><a href="#" data-href="<?php echo base_url().'/usuarios/reingresar/'. $dato['idUsuario']?>" data-bs-toggle="modal" data-bs-target="#modal-confirma" data-bs-placement="top" title="Reingresar registro" class="btn btn-success"><em class="fas fa-arrow-alt-circle-up"></em></a></td>
                                         </tr>
                                         <?php
                                         }

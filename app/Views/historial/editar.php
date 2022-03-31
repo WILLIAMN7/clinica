@@ -1,4 +1,3 @@
-<div id="layoutSidenav_content">
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4"><?php echo $titulo?></h1>
@@ -31,7 +30,8 @@
                                     <div class="row">
                                         <div class="col-12 col-sm-6">
                                             <label>Fecha de nacimiento:</label>
-                                            <input class="form-control" id="fechaNacimiento" name="fechaNacimiento" type="date" value="<?php echo $datos['fechaNacimientoPaciente'];?>" autofocus required>
+                                            <?php $date = date('Y-m-d', time());?>
+                                            <input class="form-control" id="fechaNacimiento" name="fechaNacimiento" type="date" value="<?php echo $datos['fechaNacimientoPaciente'];?>" min="1900-01-01" max="<?php echo $date;?>" autofocus required>
                                         </div>
                                         <div class="col-12 col-sm-6">
                                             <label>Teléfono:</label>

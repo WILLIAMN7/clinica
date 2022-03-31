@@ -1,4 +1,3 @@
-<div id="layoutSidenav_content">
     <main>
         <div class="container-fluid px-4">
             <br />
@@ -6,26 +5,26 @@
                 <div class="col-4">
                     <div class="card text-white bg-danger">
                         <div class="card-body">
-                            <?php // echo $total; ?> Total de tratamientos pendientes
+                            <?php echo $tratamientosPendientes; ?> Total de tratamientos pendientes
                         </div>
-                        <a class="card-footer text-white" href="<?php echo base_url() ?>/productos">Ver detalles</a>
+                        <a class="card-footer text-white" href="<?php echo base_url() ?>/tratamientos/muestraTratamientosPdf/PENDIENTE">Ver detalles</a>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="card text-white bg-primary">
                         <div class="card-body">
-                            <?php //echo $totalVentas['total']; ?> Total de tratamientos en proceso
+                            <?php echo $tratamientosEnProceso; ?> Total de tratamientos en proceso
                         </div>
-                        <a class="card-footer text-white" href="<?php echo base_url() ?>/ventas">Ver detalles</a>
+                        <a class="card-footer text-white" href="<?php echo base_url() ?>/tratamientos/muestraTratamientosPdf/EN PROCESO">Ver detalles</a>
 
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="card text-white bg-success">
                         <div class="card-body">
-                            <?php //echo $minimo; ?> Total de tratamientos finalizados
+                            <?php echo $tratamientosFinalizados; ?> Total de tratamientos finalizados
                         </div>
-                        <a class="card-footer text-white" href="<?php echo base_url() ?>/productos/mostrarMinimos">Ver detalles</a>
+                        <a class="card-footer text-white" href="<?php echo base_url() ?>/tratamientos/muestraTratamientosPdf/FINALIZADO">Ver detalles</a>
                     </div>
                 </div>
             </div>
@@ -51,35 +50,14 @@
                     echo "'Tratamientos pendientes',";
                     echo "'Tratamientos en proceso',";
                     echo "'Tratamientos finalizados'";
-                    /*$i = 0;
-                    foreach ($productos as $producto) {
-                        if ($i < ($productoscontador - 1)) {
-                            echo "'" . $producto['wn7_pro_nombre'] . "',";
-                        } else {
-                            echo "'" . $producto['wn7_pro_nombre'] . "'";
-                        }
-                        $i++;
-                    }*/
                     ?>
                 ],
                 datasets: [{
                     label: '# Tratamientos',
                     data: [<?php
-                    //echo "'1',";
-                    //echo "'2',";
-                    //echo "'4'";
                     echo "'" . $tratamientosPendientes . "',";
                     echo "'" . $tratamientosEnProceso . "',";
                     echo "'" . $tratamientosFinalizados . "'";
-                            /*$i = 0;
-                            foreach ($productos as $producto) {
-                                if ($i < ($productoscontador - 1)) {
-                                    echo "'" . $producto['wn7_pro_existencias'] . "',";
-                                } else {
-                                    echo "'" . $producto['wn7_pro_existencias'] . "'";
-                                }
-                                $i++;
-                            }*/
                             ?>],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',
@@ -119,38 +97,12 @@
                 labels: [
                     <?php
                     echo "'Procedimientos realizados',";
-                    //echo "'Tratamientos en proceso',";
-                    //echo "'Tratamientos finalizados'";
-                    /*$i = 0;
-                    foreach ($productos as $producto) {
-                        if ($i < ($productoscontador - 1)) {
-                            echo "'" . $producto['wn7_pro_nombre'] . "',";
-                        } else {
-                            echo "'" . $producto['wn7_pro_nombre'] . "'";
-                        }
-                        $i++;
-                    }*/
                     ?>
                 ],
                 datasets: [{
                     label: '# Procedimientos realizados',
                     data: [<?php
-                    //echo "'1',";
-                    //echo "'2',";
-                    //echo "'4'";
-                    
                     echo "'" . $procedimientosRelizados . "'";
-                    //echo "'" . $tratamientosEnProceso . "',";
-                    //echo "'" . $tratamientosFinalizados . "'";
-                            /*$i = 0;
-                            foreach ($productos as $producto) {
-                                if ($i < ($productoscontador - 1)) {
-                                    echo "'" . $producto['wn7_pro_existencias'] . "',";
-                                } else {
-                                    echo "'" . $producto['wn7_pro_existencias'] . "'";
-                                }
-                                $i++;
-                            }*/
                             ?>],
                     backgroundColor: [
                         'rgba(255, 99, 132, 0.2)',

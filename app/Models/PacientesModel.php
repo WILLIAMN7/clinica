@@ -28,10 +28,7 @@ class PacientesModel extends Model
         $this->join('tbanamnesis as a', 'a.idPaciente = tbPaciente.idPaciente');
         $this->where('a.fechaAltaAnamnesis>"'.$fechaInicio.'"');
         $this->where('a.fechaAltaAnamnesis<"'.$fechaFin.'"');
-
-        //$datos=$this->countAllResults();
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 
     public function listarFiltrosDiagnosticosRealizadas($idTratamiento, $fechaInicio, $fechaFin){
@@ -39,9 +36,7 @@ class PacientesModel extends Model
         $this->join('tbdiagnostico as d', 'd.idPaciente = tbPaciente.idPaciente');
         $this->where('d.fechaAltaDiagnostico>"'.$fechaInicio.'"');
         $this->where('d.fechaAltaDiagnostico<"'.$fechaFin.'"');
-        //$datos=$this->countAllResults();
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 
     public function listarFiltrosTratamientosRealizadas($idTratamiento, $fechaInicio, $fechaFin){
@@ -49,9 +44,7 @@ class PacientesModel extends Model
         $this->join('tbtratamiento as t', 't.idPaciente = tbPaciente.idPaciente');
         $this->where('t.fechaAltaTratamiento>"'.$fechaInicio.'"');
         $this->where('t.fechaAltaTratamiento<"'.$fechaFin.'"');
-        //$datos=$this->countAllResults();
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
 
     public function listarFiltrosProcedimientossRealizadas($fechaInicio, $fechaFin){
@@ -60,8 +53,7 @@ class PacientesModel extends Model
         $this->join('tbprocedimientosrealizados as p', 't.idTratamiento = p.idTratamiento');
         $this->where('p.fechaAltaProcedimientosRealizados>"'.$fechaInicio.'"');
         $this->where('p.fechaAltaProcedimientosRealizados<"'.$fechaFin.'"');
-        $datos=$this->findAll();
-        return $datos;
+        return $this->findAll();
     }
     
 }

@@ -9,7 +9,7 @@ use App\Libraries\PermisosMenu;
 
 class Medicos extends BaseController
 {
-	protected $medicos, $detalleRoles;
+	protected $medicos, $detalleRoles, $redireccionIndexMedico;
 	protected $reglas, $session;
 
 	public function __construct()
@@ -18,51 +18,33 @@ class Medicos extends BaseController
 		$this->medicos = new MedicosModel();
 		$this->detalleRoles = new DetalleRolesPermisosModel();
 		$this->session = session();
+		$this->redireccionIndexMedico = '/medicos';
 		helper(['form']);
 		$this->reglas = [
 			'nombre' => [
-				'rules' => 'required|min_length[2]|max_length[50]',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.'
-				]
+				'rules' => 'required|min_length[2]|max_length[50]'
 			], 'apellido' => [
-				'rules' => 'required|min_length[2]|max_length[50]',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.'
-				]
+				'rules' => 'required|min_length[2]|max_length[50]'
 			], 'fechaNacimiento' => [
-				'rules' => 'required',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.'
-				]
+				'rules' => 'required'
 			], 'telefono' => [
-				'rules' => 'required|min_length[7]|max_length[10]|numeric',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.',
-					'min_length' => 'El campo {field} debe tener como mínimo 7 caracteres.',
-					'max_length' => 'El campo {field} debe tener como máximo 10 caracteres.'
-				]
+				'rules' => 'required|min_length[7]|max_length[10]|numeric'
 			], 'correo' => [
-				'rules' => 'required|min_length[10]|max_length[80]|valid_email',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.',
-					'valid_email' => 'El campo {field} debe estar en el formato correcto. Ejemplo: ejemplo@gmail.com'
-				]
-			], 'identificacion' => [
-				'rules' => 'required|min_length[10]|max_length[13]|numeric',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.'
-				]
+				'rules' => 'required|min_length[10]|max_length[80]|valid_email'
 			], 'direccion' => [
-				'rules' => 'required|min_length[5]|max_length[50]',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.'
-				]
+				'rules' => 'required|min_length[5]|max_length[50]'
 			], 'genero' => [
-				'rules' => 'required',
-				'errors' => [
-					'required' => 'El campo {field} es obligatorio.'
-				]
+				'rules' => 'required'
+			]
+		];
+		$this->reglasInsertarIdentificacion = [
+			'identificacion' => [
+				'rules' => 'required|min_length[10]|max_length[13]|numeric|is_unique[tbmedico.identificacionMedico]'
+			]
+		];
+		$this->reglasModificarIdentificacion = [
+			'identificacion' => [
+				'rules' => 'required|min_length[10]|max_length[13]|numeric|is_unique[tbmedico.identificacionMedico,tbmedico.idMedico,{id}]'
 			]
 		];
 	}
@@ -79,11 +61,11 @@ class Medicos extends BaseController
 				$this->permisosMenu->mensajeNoPermisos();
 				echo view('footer');
 			} else {
-				$medicos = $this->medicos->where('activoMedico', $activo)->findAll();
+				$medico = $this->medicos->where('activoMedico', $activo)->findAll();
 				$permisoInsertar = $this->detalleRoles->verificaPermisos($this->session->idRol, 'MedicosInsertar');
 				$permisoEditar = $this->detalleRoles->verificaPermisos($this->session->idRol, 'MedicosEditar');
 				$permisoEliminar = $this->detalleRoles->verificaPermisos($this->session->idRol, 'MedicosEliminar');
-				$data = ['titulo' => 'Médicos', 'datos' => $medicos, 'permisoInsertar' => $permisoInsertar, 'permisoEditar' => $permisoEditar, 'permisoEliminar' => $permisoEliminar];
+				$data = ['titulo' => 'Médicos', 'datos' => $medico, 'permisoInsertar' => $permisoInsertar, 'permisoEditar' => $permisoEditar, 'permisoEliminar' => $permisoEliminar];
 
 				echo view('header');
 				$this->permisosMenu->habilitarpermisos();
@@ -102,8 +84,8 @@ class Medicos extends BaseController
 			$this->permisosMenu->mensajeNoPermisos();
 			echo view('footer');
 		} else {
-			$medicos = $this->medicos->where('activoMedico', $activo)->findAll();
-			$data = ['titulo' => 'Médicos eliminados', 'datos' => $medicos];
+			$medico = $this->medicos->where('activoMedico', $activo)->findAll();
+			$data = ['titulo' => 'Médicos eliminados', 'datos' => $medico];
 			echo view('header');
 			$this->permisosMenu->habilitarpermisos();
 			echo view('medicos/eliminados', $data);
@@ -140,8 +122,8 @@ class Medicos extends BaseController
 			$this->permisosMenu->mensajeNoPermisos();
 			echo view('footer');
 		} else {
-			if ($this->request->getMethod() == "post" && $this->validate($this->reglas)) {
-				if($this->medicos->save([
+			if ($this->request->getMethod() == "post" && $this->validate($this->reglas) && $this->validate($this->reglasInsertarIdentificacion)) {
+				if ($this->medicos->save([
 					'nombreMedico' => $this->request->getPost('nombre'),
 					'apellidoMedico' => $this->request->getPost('apellido'),
 					'fechaNacimientoMedico' => $this->request->getPost('fechaNacimiento'),
@@ -150,10 +132,10 @@ class Medicos extends BaseController
 					'identificacionMedico' => $this->request->getPost('identificacion'),
 					'direccionMedico' => $this->request->getPost('direccion'),
 					'generoMedico' => $this->request->getPost('genero')
-				])){
-					return redirect()->to(base_url() . '/medicos')->with('mensaje', 'Se ha ingresado correctamente.');
-				}else{
-					return redirect()->to(base_url() . '/medicos')->with('mensajeError', 'No se ha ingresado correctamente.');
+				])) {
+					return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensaje', 'Se ha ingresado correctamente.');
+				} else {
+					return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensajeError', 'No se ha ingresado correctamente.');
 				}
 			} else {
 				$data = ['titulo' => 'Agregar médicos', 'validation' => $this->validator];
@@ -192,8 +174,8 @@ class Medicos extends BaseController
 	}
 	public function actualizar()
 	{
-		if ($this->request->getMethod() == "post" && $this->validate($this->reglas)) {
-			if($this->medicos->update(
+		if ($this->request->getMethod() == "post" && $this->validate($this->reglas) && $this->validate($this->reglasModificarIdentificacion)) {
+			if ($this->medicos->update(
 				$this->request->getPost('id'),
 				[
 					'nombreMedico' => $this->request->getPost('nombre'),
@@ -205,10 +187,10 @@ class Medicos extends BaseController
 					'direccionMedico' => $this->request->getPost('direccion'),
 					'generoMedico' => $this->request->getPost('genero')
 				]
-			)){
-				return redirect()->to(base_url() . '/medicos')->with('mensaje', 'Se ha modificado correctamente.');
-			}else{
-				return redirect()->to(base_url() . '/medicos')->with('mensajeError', 'No se ha modificado correctamente.');
+			)) {
+				return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensaje', 'Se ha modificado correctamente.');
+			} else {
+				return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensajeError', 'No se ha modificado correctamente.');
 			}
 		} else {
 			return $this->editar($this->request->getPost('id'), $this->validator);
@@ -217,18 +199,18 @@ class Medicos extends BaseController
 
 	public function eliminar($id)
 	{
-		if($this->medicos->update($id, ['activoMedico' => 0])){
-            return redirect()->to(base_url() . '/medicos')->with('mensaje', 'Se ha eliminado correctamente.');
-        }else{
-            return redirect()->to(base_url() . '/medicos')->with('mensajeError', 'No se ha eliminado correctamente.');
-        }
+		if ($this->medicos->update($id, ['activoMedico' => 0])) {
+			return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensaje', 'Se ha eliminado correctamente.');
+		} else {
+			return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensajeError', 'No se ha eliminado correctamente.');
+		}
 	}
 	public function reingresar($id)
 	{
-		if($this->medicos->update($id, ['activoMedico' => 1])){
-			return redirect()->to(base_url() . '/medicos')->with('mensaje', 'Se ha reingresado correctamente.');
-			}else{
-				return redirect()->to(base_url() . '/medicos')->with('mensajeError', 'No se ha reingresado correctamente.');
-		   }
+		if ($this->medicos->update($id, ['activoMedico' => 1])) {
+			return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensaje', 'Se ha reingresado correctamente.');
+		} else {
+			return redirect()->to(base_url() . $this->redireccionIndexMedico)->with('mensajeError', 'No se ha reingresado correctamente.');
+		}
 	}
 }
